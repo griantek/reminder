@@ -33,25 +33,27 @@ const Reminder = mongoose.model('Reminder', reminderSchema);
 
 // Endpoint to check the status of reminders
 app.get("/reminders", async (req, res) => {
-  console.log(`[${new Date().toISOString()}] GET /reminders - Fetching reminders`);
   try {
     const reminders = await Reminder.find().populate('appointmentId');
-    console.log(`[${new Date().toISOString()}] Reminders fetched successfully`);
     res.json(reminders);
   } catch (error) {
-    console.error(`[${new Date().toISOString()}] Error fetching reminders:`, error);
     res.status(500).send("Error fetching reminders");
   }
 });
 
 // Schedule reminders every minutes using cron
 cron.schedule('* * * * *', async () => {
-  console.log(`[${new Date().toISOString()}] Running reminder job every minutes`);
-  
   const now = new Date();
+  now.setHours(now.getHours() + 5);   // Add 5 hours
+  now.setMinutes(now.getMinutes() + 30); // Add 30 minutes  
+  console.log(now)
+  console.log(now)
+  console.log(`${now} Running reminder job every minutes`);
+  
+  
   try {
     const reminders = await Reminder.find({ alertTime: { $lte: now }, status: 'pending' }).populate('appointmentId');
-    console.log(`[${new Date().toISOString()}] Found ${reminders.length} reminders to process`);
+    console.log(`${now} Found ${reminders.length} reminders to process`);
 
     for (let reminder of reminders) {
       const { appointmentId } = reminder;
@@ -59,30 +61,29 @@ cron.schedule('* * * * *', async () => {
 
       const message = `
         Hi ${name}, this is a reminder for your appointment at Oasis Spa:
-        - Service: ${service}
-        - Date: ${date}
-        - Time: ${time}
-        📍 Location: 123 Main Street, New York
+        Service: ${service}
+        Date: ${date}
+        Time: ${time}
+        📍Location: 123 Main Street, New York
       `;
 
       try {
-        console.log(`[${new Date().toISOString()}] Sending reminder to ${phone}`);
+        console.log(`${now} Sending reminder to ${phone}`);
         await sendWhatsAppMessage(phone, message);
         reminder.status = 'sent';
         await reminder.save();
-        console.log(`[${new Date().toISOString()}] Reminder sent and status updated for ${phone}`);
+        console.log(`${now} Reminder sent and status updated for ${phone}`);
       } catch (error) {
-        console.error(`[${new Date().toISOString()}] Error sending reminder for ${phone}:`, error);
+        console.error(`${now} Error sending reminder for ${phone}:`, error);
       }
     }
   } catch (error) {
-    console.error(`[${new Date().toISOString()}] Error processing reminders:`, error);
+    console.error(`[${now}] Error processing reminders:`, error);
   }
 });
 
 // Function to send message via WhatsApp API
 async function sendWhatsAppMessage(phone, message) {
-  console.log(`[${new Date().toISOString()}] Preparing to send WhatsApp message to ${phone}`);
   try {
     const messageData = {
       messaging_product: 'whatsapp',
@@ -94,9 +95,7 @@ async function sendWhatsAppMessage(phone, message) {
     await axios.post(process.env.WHATSAPP_API_URL, messageData, {
       headers: { Authorization: `Bearer ${process.env.WHATSAPP_TOKEN}` }
     });
-    console.log(`[${new Date().toISOString()}] WhatsApp message sent to ${phone}`);
   } catch (error) {
-    console.error(`[${new Date().toISOString()}] Error sending message to WhatsApp for ${phone}:`, error.response?.data || error.message);
     throw error;
   }
 }
