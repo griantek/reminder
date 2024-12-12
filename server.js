@@ -50,7 +50,7 @@ cron.schedule('* * * * *', async () => {
   
   const now = new Date();
   try {
-    const reminders = await Reminder.find({ alertTime: { $gte: now }, status: 'pending' }).populate('appointmentId');
+    const reminders = await Reminder.find({ alertTime: { $lte: now }, status: 'pending' }).populate('appointmentId');
     console.log(`[${new Date().toISOString()}] Found ${reminders.length} reminders to process`);
 
     for (let reminder of reminders) {
