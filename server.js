@@ -41,6 +41,19 @@ app.get("/reminders", async (req, res) => {
   }
 });
 
+function formatTimeTo12Hour(time24) {
+  const [hours, minutes] = time24.split(":");
+  const hour = parseInt(hours, 10);
+  const period = hour >= 12 ? "PM" : "AM";
+  const hour12 = hour % 12 || 12; // Convert 0 to 12 for 12-hour format
+  return `${hour12}:${minutes} ${period}`;
+}
+
+function formatDate(dateString) {
+  const date = new Date(dateString);
+  return date.toDateString(); // Returns date in "Thu Dec 12 2024" format
+}
+
 // Schedule reminders every minutes using cron
 cron.schedule('* * * * *', async () => {
   const now = new Date();
@@ -62,8 +75,8 @@ cron.schedule('* * * * *', async () => {
       const message = `
         Hi ${name}, this is a reminder for your appointment at Oasis Spa:
         Service: ${service}
-        Date: ${date}
-        Time: ${time}
+        Date: ${formatDate(date)}
+        Time: ${formatTimeTo12Hour(time)} 
         📍Location: 123 Main Street, New York
       `;
 
