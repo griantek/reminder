@@ -54,6 +54,22 @@ function formatDate(dateString) {
   return date.toDateString(); // Returns date in "Thu Dec 12 2024" format
 }
 
+async function sendLocation(phone) {
+  const locationMessage = {
+      messaging_product: 'whatsapp',
+      to: `whatsapp:${phone}`,
+      type: 'location',
+      location: {
+          latitude: process.env.SPA_LATITUDE, // Example latitude
+          longitude: process.env.SPA_LONGITUDE, // Example longitude
+          name: process.env.SPA_NAME,
+          address: process.env.SPA_ADDRESS
+      }
+  };
+
+  await sendToWhatsApp(locationMessage);
+}
+
 // Schedule reminders every minutes using cron
 cron.schedule('* * * * *', async () => {
   const now = new Date();
@@ -80,9 +96,11 @@ cron.schedule('* * * * *', async () => {
         📍Location: 123 Main Street, New York
       `;
 
+
       try {
         console.log(`${now} Sending reminder to ${phone}`);
         await sendWhatsAppMessage(phone, message);
+        sendLocation(phone)   
         reminder.status = 'sent';
         await reminder.save();
         console.log(`${now} Reminder sent and status updated for ${phone}`);
