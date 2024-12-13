@@ -54,6 +54,16 @@ function formatDate(dateString) {
   return date.toDateString(); // Returns date in "Thu Dec 12 2024" format
 }
 
+async function sendToWhatsApp(messageData) {
+  try {
+      await axios.post(process.env.WHATSAPP_API_URL, messageData, {
+          headers: { Authorization: `Bearer ${process.env.WHATSAPP_TOKEN}` }
+      });
+  } catch (error) {
+      console.error("Error sending message:", error.response?.data || error.message);
+  }
+}
+
 async function sendLocation(phone) {
   const locationMessage = {
       messaging_product: 'whatsapp',
