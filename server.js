@@ -99,7 +99,7 @@ cron.schedule('* * * * *', async () => {
       const { phone, name, service, date, time } = appointmentId;
 
       const message = `
-        Hi ${name}, this is a reminder for your appointment at Oasis Spa:\nService: ${service}\nDate: ${formatDate(date)}\nTime: ${formatTimeTo12Hour(time)}\n📍Location: 123 Main Street, New York
+        Hi ${name}, this is a reminder for your appointment at Oasis Spa:-\nService: ${service}-\nDate: ${formatDate(date)}-\nTime: ${formatTimeTo12Hour(time)}-\n📍Location: 123 Main Street, New York
       `;
 
 
